@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "538762051603",
+    "project_id": "remindmemaps-525c1",
+    "storage_bucket": "remindmemaps-525c1.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:538762051603:android:cbcecd4754436d02f93fe6",
+        "android_client_info": {
+          "package_name": "com.example.remindmemaps"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "538762051603-t6i638csaj16g7fpnrf9ih8mntv453ut.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAQZ81A19qVQCcFbCPNUTYMj5-InppdVoA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "538762051603-t6i638csaj16g7fpnrf9ih8mntv453ut.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
