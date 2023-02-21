@@ -20,10 +20,12 @@ public class MainActivity extends AppCompatActivity {
         getStarted.setOnClickListener(view -> {
             Intent intent = new Intent(this,RegisterActivity.class);
             startActivity(intent);
+            finish();
         });
         login.setOnClickListener(view -> {
             Intent intent = new Intent(this,LoginActivity.class);
             startActivity(intent);
+            finish();
         });
     }
 }
