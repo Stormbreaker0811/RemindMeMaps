@@ -19,14 +19,18 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 
 import org.w3c.dom.Text;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 public class RegisterActivity extends AppCompatActivity {
     private TextInputLayout username, password, email, confirm;
+    boolean isRegistered;
     private EditText user, pass, email_text, conf;
     private Button register;
 
@@ -45,48 +49,85 @@ public class RegisterActivity extends AppCompatActivity {
                 email.setErrorEnabled(true);
             } else {
                 if (pass.getText().toString().equals(conf.getText().toString())) {
-                    email.setErrorEnabled(false);
-                    Map<String, String> users = new HashMap<>();
-                    users.put("Username", user.getText().toString());
-                    users.put("Email", user.getText().toString());
-                    users.put("Password", pass.getText().toString());
-                    FirebaseFirestore userRecords = FirebaseFirestore.getInstance();
-                    userRecords.collection("user_records").
-                            document("User" + user.getText().toString()).set(users).addOnSuccessListener(new OnSuccessListener<Void>() {
-                                @Override
-                                public void onSuccess(Void unused) {
-                                    AlertDialog.Builder register = new AlertDialog.Builder(RegisterActivity.this);
-                                    register.setTitle("Registration Complete.");
-                                    register.setMessage("Congrats!!You have been registered.Do you want to login?");
-                                    register.setPositiveButton("YES", new DialogInterface.OnClickListener() {
-                                        @Override
-                                        public void onClick(DialogInterface dialogInterface, int i) {
-                                            Intent intent = new Intent(RegisterActivity.this, LoginActivity.class);
-                                            startActivity(intent);
-                                            finish();
-                                        }
-                                    }).setNegativeButton("NO", new DialogInterface.OnClickListener() {
-                                        @Override
-                                        public void onClick(DialogInterface dialogInterface, int i) {
-                                            dialogInterface.dismiss();
-                                            Intent intent = new Intent(RegisterActivity.this, MainActivity.class);
-                                            startActivity(intent);
-                                            finish();
-                                        }
-                                    }).show();
-                                }
-                            }).addOnFailureListener(new OnFailureListener() {
-                                @Override
-                                public void onFailure(@NonNull Exception e) {
-                                    e.printStackTrace();
-                                }
-                            });
+                    if (isRegistered()) {
+                        //Toast.makeText(this, "User Has Already Been Registered.", Toast.LENGTH_SHORT).show();
+                        AlertDialog.Builder registered = new AlertDialog.Builder(this);
+                        registered.setTitle("Existing User Found.");
+                        registered.setMessage("User Has Already Been Registered. Do you want to login?");
+                        registered.setPositiveButton("Yes",(dialogInterface, i) -> {
+                            dialogInterface.dismiss();
+                            Intent in = new Intent(RegisterActivity.this,LoginActivity.class);
+                            startActivity(in);
+                        }).setNegativeButton("No",(dialogInterface, i) -> {
+                            dialogInterface.dismiss();
+                            Intent in = new Intent(RegisterActivity.this,MainActivity.class);
+                            startActivity(in);
+                        });
+                    } else {
+                        email.setErrorEnabled(false);
+                        Map<String, String> users = new HashMap<>();
+                        users.put("Username", user.getText().toString());
+                        users.put("Email", user.getText().toString());
+                        users.put("Password", pass.getText().toString());
+                        FirebaseFirestore userRecords = FirebaseFirestore.getInstance();
+                        userRecords.collection("user_records").
+                                document("User" + user.getText().toString()).set(users).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                    @Override
+                                    public void onSuccess(Void unused) {
+                                        AlertDialog.Builder register = new AlertDialog.Builder(RegisterActivity.this);
+                                        register.setTitle("Registration Complete.");
+                                        register.setMessage("Congrats!!You have been registered.Do you want to login?");
+                                        register.setPositiveButton("YES", new DialogInterface.OnClickListener() {
+                                            @Override
+                                            public void onClick(DialogInterface dialogInterface, int i) {
+                                                Intent intent = new Intent(RegisterActivity.this, LoginActivity.class);
+                                                startActivity(intent);
+                                                finish();
+                                            }
+                                        }).setNegativeButton("NO", new DialogInterface.OnClickListener() {
+                                            @Override
+                                            public void onClick(DialogInterface dialogInterface, int i) {
+                                                dialogInterface.dismiss();
+                                                Intent intent = new Intent(RegisterActivity.this, MainActivity.class);
+                                                startActivity(intent);
+                                                finish();
+                                            }
+                                        }).show();
+                                    }
+                                }).addOnFailureListener(new OnFailureListener() {
+                                    @Override
+                                    public void onFailure(@NonNull Exception e) {
+                                        e.printStackTrace();
+                                    }
+                                });
+                    }
                 } else {
                     password.setError("Passwords don't match.");
                     confirm.setError("Passwords don't match.");
                 }
             }
         });
+    }
+
+    private boolean isRegistered() {
+        FirebaseFirestore registered = FirebaseFirestore.getInstance();
+        registered.collection("users").whereEqualTo("Email",email_text.getText().toString())
+                .get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+                    @Override
+                    public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                        for(QueryDocumentSnapshot doc : queryDocumentSnapshots){
+                            if(Objects.equals(doc.getString("Email"),email_text.getText().toString())){
+                                isRegistered = true;
+                            }
+                        }
+                    }
+                }).addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        isRegistered = false;
+                    }
+                });
+        return isRegistered;
     }
 
     private void getEditText() {
