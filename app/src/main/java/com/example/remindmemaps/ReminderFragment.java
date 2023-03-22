@@ -2,6 +2,7 @@ package com.example.remindmemaps;
 
 
 import android.Manifest;
+import android.animation.Animator;
 import android.app.Activity;
 import android.content.pm.PackageManager;
 import android.location.Location;
@@ -22,6 +23,8 @@ import com.google.android.gms.maps.LocationSource;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.material.animation.TransformationCallback;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.protobuf.DescriptorProtos;
 
 import java.util.Objects;
@@ -42,6 +45,7 @@ public class ReminderFragment extends Fragment {
     // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
+    private FloatingActionButton addReminder;
 
     public ReminderFragment() {
         // Required empty public constructor
@@ -78,7 +82,7 @@ public class ReminderFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_reminder, container, false);
-
+        //addReminder = view.findViewById(R.id.addReminder);
         // Inflate the layout for this fragment
         return view;
     }
