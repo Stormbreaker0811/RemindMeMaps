@@ -45,6 +45,7 @@ public class ReminderFragment extends Fragment {
     // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
+    private MapView maps;
     private FloatingActionButton addReminder;
 
     public ReminderFragment() {
@@ -76,12 +77,14 @@ public class ReminderFragment extends Fragment {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
+
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_reminder, container, false);
+        maps = view.findViewById(R.id.mapView2);
         //addReminder = view.findViewById(R.id.addReminder);
         // Inflate the layout for this fragment
         return view;
