@@ -16,7 +16,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.RemindMeMaps"
         tools:targetApi="31">
-
+        <activity
+            android:name=".EmailConfigActivity"
+            android:exported="false" />
         <!--
              TODO: Before you run your application, you need a Google Maps API key.
 
@@ -37,7 +39,7 @@
             android:exported="false" />
         <activity
             android:name=".LandingActivity"
-            android:exported="false"></activity>
+            android:exported="false" />
         <activity
             android:name=".LoginActivity"
             android:exported="false" />

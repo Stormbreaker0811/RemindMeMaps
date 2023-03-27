@@ -67,7 +67,7 @@ public class RegisterActivity extends AppCompatActivity {
                         email.setErrorEnabled(false);
                         Map<String, String> users = new HashMap<>();
                         users.put("Username", user.getText().toString());
-                        users.put("Email", user.getText().toString());
+                        users.put("Email", email_text.getText().toString());
                         users.put("Password", pass.getText().toString());
                         FirebaseFirestore userRecords = FirebaseFirestore.getInstance();
                         userRecords.collection("user_records").
@@ -80,7 +80,7 @@ public class RegisterActivity extends AppCompatActivity {
                                         register.setPositiveButton("YES", new DialogInterface.OnClickListener() {
                                             @Override
                                             public void onClick(DialogInterface dialogInterface, int i) {
-                                                Intent intent = new Intent(RegisterActivity.this, LoginActivity.class);
+                                                Intent intent = new Intent(RegisterActivity.this, EmailConfigActivity.class);
                                                 startActivity(intent);
                                                 finish();
                                             }
