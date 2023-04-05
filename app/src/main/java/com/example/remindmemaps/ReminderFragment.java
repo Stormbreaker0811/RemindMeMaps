@@ -4,8 +4,12 @@ package com.example.remindmemaps;
 import android.Manifest;
 import android.animation.Animator;
 import android.app.Activity;
+import android.app.Dialog;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Camera;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.location.Location;
 import android.os.Bundle;
 
@@ -17,12 +21,15 @@ import android.telephony.CarrierConfigManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ScrollView;
 import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.LocationSource;
+import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
@@ -53,7 +60,6 @@ public class ReminderFragment extends Fragment {
     private String mParam2;
     private TextInputLayout reminderName,reminderDescription;
     private EditText name,description;
-    LatLng delhi = new LatLng(28.644800, 77.216721);
 
     public ReminderFragment() {
         // Required empty public constructor
@@ -85,33 +91,30 @@ public class ReminderFragment extends Fragment {
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
         View view = getLayoutInflater().inflate(R.layout.fragment_reminder,null);
-        reminderName = view.findViewById(R.id.enter_reminder_name);
-        reminderDescription = view.findViewById(R.id.enter_reminder_description);
-        MapView maps = view.findViewById(R.id.mapView);
-        maps.getMapAsync(new OnMapReadyCallback() {
-            @Override
-            public void onMapReady(@NonNull GoogleMap googleMap) {
-                /*Location location = new Location();
-                LatLng myPos = new LatLng(location.getLatitude(),location.getLongitude());*/
-                /*googleMap.moveCamera(CameraUpdateFactory.newLatLng(myPos));*/
-                googleMap.moveCamera(CameraUpdateFactory.newLatLng(delhi));
-            }
-        });
-        maps.setOnClickListener(new View.OnClickListener() {
+        //reminderName = view.findViewById(R.id.enter_reminder_name);
+        //reminderDescription = view.findViewById(R.id.enter_reminder_description);
+        //scrollView.setSmoothScrollingEnabled(true);
+        //scrollView.setNestedScrollingEnabled(true);
+        //Button saveReminder = view.findViewById(R.id.save_btn);
+        Button selectPlace = view.findViewById(R.id.select_place);
+        selectPlace.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Toast.makeText(getContext(), "Maps clicked..", Toast.LENGTH_SHORT).show();
+                final Dialog mapsDialog = new Dialog(getContext(), android.R.style.Theme_Black_NoTitleBar);
+                mapsDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.argb(100, 0, 0, 0)));
+                mapsDialog.setContentView(R.layout.popup_maps_fragment);
+                mapsDialog.setCancelable(true);
+                mapsDialog.show();
             }
         });
-        getEditText();
+
+
+        //getEditText();
     }
 
     private void getEditText() {
-
         name = reminderName.getEditText();
         description = reminderDescription.getEditText();
-
-
     }
 
     @Override
