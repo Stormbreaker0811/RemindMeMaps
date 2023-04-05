@@ -1,6 +1,7 @@
 package com.example.remindmemaps;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.app.AlertDialog;
@@ -9,11 +10,18 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Patterns;
+import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.auth.api.identity.BeginSignInRequest;
+import com.google.android.gms.auth.api.signin.GoogleSignIn;
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
+import com.google.android.gms.auth.api.signin.GoogleSignInClient;
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
+import com.google.android.gms.common.SignInButton;
+import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
@@ -22,8 +30,6 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
-import org.w3c.dom.Text;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -31,6 +37,7 @@ import java.util.Objects;
 public class RegisterActivity extends AppCompatActivity {
     private TextInputLayout username, password, email, confirm;
     boolean isRegistered;
+    private static final int REQ_SIGN_IN_CODE = 1;
     private EditText user, pass, email_text, conf;
     private Button register;
 
@@ -40,6 +47,7 @@ public class RegisterActivity extends AppCompatActivity {
         setContentView(R.layout.activity_register);
         initialiseUI();
         getEditText();
+        //google_sign_in.setOnClickListener(view -> googleSignUp());
         register.setOnClickListener(view -> {
             if (TextUtils.isEmpty(user.getText()) && TextUtils.isEmpty(pass.getText()) &&
                     TextUtils.isEmpty(conf.getText()) && TextUtils.isEmpty(email_text.getText())) {
@@ -80,7 +88,7 @@ public class RegisterActivity extends AppCompatActivity {
                                         register.setPositiveButton("YES", new DialogInterface.OnClickListener() {
                                             @Override
                                             public void onClick(DialogInterface dialogInterface, int i) {
-                                                Intent intent = new Intent(RegisterActivity.this, EmailConfigActivity.class);
+                                                Intent intent = new Intent(RegisterActivity.this, LoginActivity.class);
                                                 startActivity(intent);
                                                 finish();
                                             }
@@ -143,15 +151,16 @@ public class RegisterActivity extends AppCompatActivity {
         email = (TextInputLayout) findViewById(R.id.email_register);
         confirm = (TextInputLayout) findViewById(R.id.confirm_pass_register);
         register = (Button) findViewById(R.id.register_btn);
+        //google_sign_in = (SignInButton) findViewById(R.id.google_sign_in);
     }
+
 
     @Override
     public void onBackPressed() {
-        super.onBackPressed();
-        AlertDialog.Builder logout_alert = new AlertDialog.Builder(this);
-        logout_alert.setTitle("Logout??");
-        logout_alert.setMessage("Do you want to logout?");
-        logout_alert.setPositiveButton("Yes", (dialogInterface, i) -> {
+        AlertDialog.Builder exit_alert = new AlertDialog.Builder(this);
+        exit_alert.setTitle("Exit Alert");
+        exit_alert.setMessage("Do you want to exit the app?");
+        exit_alert.setPositiveButton("Yes", (dialogInterface, i) -> {
             dialogInterface.dismiss();
             System.exit(0);
         }).setNegativeButton("No", (dialogInterface, i) -> {
