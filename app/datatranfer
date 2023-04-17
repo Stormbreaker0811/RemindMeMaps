@@ -1,0 +1,51 @@
+public class LocationTracker extends Service implements LocationListener {
+
+    private LocationManager locationManager;
+    private Location targetLocation; // the geolocation to be reminded
+    private static final int DISTANCE_THRESHOLD = 100; // the distance within which to remind the user
+
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        // get the target location from database or shared preferences
+        double latitude = ...;
+        double longitude = ...;
+        targetLocation = new Location("");
+        targetLocation.setLatitude(latitude);
+        targetLocation.setLongitude(longitude);
+
+        // set up location manager to track the user's location
+        locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            return START_NOT_STICKY;
+        }
+        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, this);
+
+        return START_STICKY;
+    }
+
+    @Override
+    public void onLocationChanged(Location location) {
+        // check if the user is near the target location
+        float distance = location.distanceTo(targetLocation);
+        if (distance <= DISTANCE_THRESHOLD) {
+            // remind the user
+            NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+            NotificationCompat.Builder builder = new NotificationCompat.Builder(this, "reminder_channel")
+                    .setSmallIcon(R.drawable.ic_notification)
+                    .setContentTitle("You're near the reminder location!")
+                    .setContentText("Tap to view details")
+                    .setPriority(NotificationCompat.PRIORITY_HIGH)
+                    .setAutoCancel(true);
+            Intent intent = new Intent(this, ReminderDetailsActivity.class);
+            PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+            builder.setContentIntent(pendingIntent);
+            notificationManager.notify(1, builder.build());
+        }
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        locationManager.removeUpdates(this);
+    }
+}
