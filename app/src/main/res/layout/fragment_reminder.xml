@@ -52,30 +52,15 @@
             android:hint="List all the items to pick" />
     </com.google.android.material.textfield.TextInputLayout>
 
-    <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/place_name"
-        android:layout_width="409dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/list_all_items">
-
-        <com.google.android.material.textfield.TextInputEditText
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Enter Place Name to pick up from" />
-    </com.google.android.material.textfield.TextInputLayout>
-
     <Button
         android:id="@+id/select_place"
         android:layout_width="154dp"
         android:layout_height="59dp"
-        android:layout_marginTop="100dp"
+        android:layout_marginTop="80dp"
         android:text="Select Place"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/place_name" />
+        app:layout_constraintTop_toBottomOf="@+id/list_all_items" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -41,11 +41,17 @@ public class LoginActivity extends AppCompatActivity {
         user_records.collection("user_records").whereEqualTo("Password",pass.getText().toString())
                 .get().addOnSuccessListener(queryDocumentSnapshots -> {
                     String name = "";
+                    String email = "";
+                    String password = "";
                     for(QueryDocumentSnapshot doc : queryDocumentSnapshots){
                         name = doc.getString("Name");
+                        email = doc.getString("Email");
+                        password = doc.getString("Password");
                     }
                     Intent intent = new Intent(LoginActivity.this,LandingActivity.class);
                     intent.putExtra("Name",name);
+                    intent.putExtra("Email",email);
+                    intent.putExtra("Password",password);
                     startActivity(intent);
                 }).addOnFailureListener(e -> Toast.makeText(LoginActivity.this, "Password Incorrect. No user found", Toast.LENGTH_SHORT).show());
     }

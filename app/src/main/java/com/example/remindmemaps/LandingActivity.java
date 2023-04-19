@@ -26,7 +26,11 @@ public class LandingActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_landing);
+        Intent intent = getIntent();
         initialiseUI();
+//        ReminderFragment fragment = (ReminderFragment) getSupportFragmentManager().findFragmentById(R.id.reminderFragment);
+//        assert fragment != null;
+//        fragment.setUserDetails(intent.getStringExtra("Name"), intent.getStringExtra("Email"),intent.getStringExtra("Password"));
         bottomNav.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {

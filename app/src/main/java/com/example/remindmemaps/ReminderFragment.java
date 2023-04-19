@@ -1,46 +1,46 @@
 package com.example.remindmemaps;
 
 
-import android.Manifest;
-import android.animation.Animator;
-import android.app.Activity;
-import android.app.Dialog;
-import android.content.Intent;
+import android.app.AlertDialog;
+import android.content.Context;
 import android.content.pm.PackageManager;
-import android.graphics.Camera;
-import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
 import android.location.Location;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
-import androidx.core.app.ActivityCompat;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentContainerView;
 
-import android.telephony.CarrierConfigManager;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ScrollView;
 import android.widget.Toast;
 
-import com.google.android.gms.maps.CameraUpdateFactory;
-import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.LocationSource;
+import com.example.remindmemaps.databinding.FragmentReminderBinding;
 import com.google.android.gms.maps.MapFragment;
-import com.google.android.gms.maps.MapView;
-import com.google.android.gms.maps.OnMapReadyCallback;
-import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.android.material.animation.TransformationCallback;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.libraries.places.api.Places;
+import com.google.android.libraries.places.api.model.Place;
+import com.google.android.libraries.places.api.net.FetchPlaceRequest;
+import com.google.android.libraries.places.api.net.FetchPlaceResponse;
+import com.google.android.libraries.places.api.net.PlacesClient;
+import com.google.android.libraries.places.widget.Autocomplete;
+import com.google.android.libraries.places.widget.AutocompleteFragment;
+import com.google.android.libraries.places.widget.model.AutocompleteActivityMode;
 import com.google.android.material.textfield.TextInputLayout;
-import com.google.protobuf.DescriptorProtos;
+import com.google.firebase.firestore.FirebaseFirestore;
 
-import java.util.Objects;
+import org.json.JSONObject;
+
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+
+import io.radar.sdk.Radar;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -52,14 +52,22 @@ public class ReminderFragment extends Fragment {
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
+    private Context context;
+    View view;
+    private MapsFragment mapsFragment;
+    private FragmentReminderBinding binding;
     private static final String ARG_PARAM2 = "param2";
     private final int REQUEST_PERMISSION_COURSE_LOCATION = 1;
+    private View root;
+    private EditText place_name;
 
     // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
-    private TextInputLayout reminderName,reminderDescription;
-    private EditText name,description;
+    private Button selectPlace;
+    private TextInputLayout reminderName, reminderDescription, addItems;
+    private EditText name, description, addItemsEditText;
+    private String user, email, password;
 
     public ReminderFragment() {
         // Required empty public constructor
@@ -83,44 +91,68 @@ public class ReminderFragment extends Fragment {
         return fragment;
     }
 
+    private void getEditText() {
+        reminderName.addOnEditTextAttachedListener(textInputLayout -> name = textInputLayout.getEditText());
+        reminderDescription.addOnEditTextAttachedListener(textInputLayout -> description = textInputLayout.getEditText());
+        addItems.addOnEditTextAttachedListener(textInputLayout -> addItemsEditText = textInputLayout.getEditText());
+    }
+
+
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-        }
-        View view = getLayoutInflater().inflate(R.layout.fragment_reminder,null);
-        //reminderName = view.findViewById(R.id.enter_reminder_name);
-        //reminderDescription = view.findViewById(R.id.enter_reminder_description);
-        //scrollView.setSmoothScrollingEnabled(true);
-        //scrollView.setNestedScrollingEnabled(true);
-        //Button saveReminder = view.findViewById(R.id.save_btn);
-        Button selectPlace = view.findViewById(R.id.select_place);
-        selectPlace.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                final Dialog mapsDialog = new Dialog(getContext(), android.R.style.Theme_Black_NoTitleBar);
-                mapsDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.argb(100, 0, 0, 0)));
-                mapsDialog.setContentView(R.layout.popup_maps_fragment);
-                mapsDialog.setCancelable(true);
-                mapsDialog.show();
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        binding = FragmentReminderBinding.inflate(inflater);
+        root = binding.getRoot();
+        mapsFragment = (MapsFragment) getChildFragmentManager().findFragmentById(R.id.map);
+        reminderName = binding.enterReminderName;
+        reminderDescription = binding.enterReminderDescription;
+        addItems = binding.listAllItems;
+        selectPlace = binding.selectPlace;
+        getEditText();
+        selectPlace.setOnClickListener(view1 -> {
+            if (TextUtils.isEmpty(name.getText()) && TextUtils.isEmpty(description.getText()) && TextUtils.isEmpty(addItemsEditText.getText())) {
+                Toast.makeText(context, "Please Fill all the fields...///", Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(getActivity(), "Select Place Called..//", Toast.LENGTH_SHORT).show();
+                AlertDialog.Builder maps_alert = new AlertDialog.Builder(getContext());
+                maps_alert.setCancelable(true);
+                LayoutInflater inflater1 = LayoutInflater.from(context);
+                view = inflater1.inflate(R.layout.popup_maps_fragment, null);
+                maps_alert.setView(view);
+                TextInputLayout placeName = view.findViewById(R.id.place_name);
+                placeName.addOnEditTextAttachedListener(textInputLayout -> place_name = textInputLayout.getEditText());
+                Map<String, Object> reminder = new HashMap<>();
+                Button addPlace = view.findViewById(R.id.add_place);
+                maps_alert.setPositiveButton("Add Place", (dialogInterface, i) -> {
+//                    reminder.put("Username", user);
+//                    reminder.put("Reminder Name", name.getText().toString());
+//                    reminder.put("Reminder Description", description.getText().toString());
+//                    reminder.put("Place Name", place_name.getText().toString());
+//                    reminder.put("Place Longitude", "");
+//                    reminder.put("Place Latitude", "");
+//                    FirebaseFirestore.getInstance().collection("reminders").
+//                            document("Reminders of " + user).set(reminder).
+//                            addOnCompleteListener(task -> {
+//                                if (task.isSuccessful()) {
+//                                    Toast.makeText(getContext(), "Reminder added successfully..", Toast.LENGTH_SHORT).show();
+//                                }
+//                            }).addOnFailureListener(e -> {
+//                                Toast.makeText(context, e.getMessage(), Toast.LENGTH_SHORT).show();
+//                            });
+                });
+
+                AlertDialog maps_dialog = maps_alert.create();
+                maps_dialog.show();
+
             }
         });
-
-
-        //getEditText();
+        return root;
     }
 
-    private void getEditText() {
-        name = reminderName.getEditText();
-        description = reminderDescription.getEditText();
-    }
-
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_reminder, container, false);
+    public void setUserDetails(String name, String email, String password) {
+        this.user = name;
+        this.email = email;
+        this.password = password;
     }
 
     @Override
@@ -128,11 +160,18 @@ public class ReminderFragment extends Fragment {
         if (requestCode == REQUEST_PERMISSION_COURSE_LOCATION) {
             if (grantResults.length > 0
                     && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                Toast.makeText(getContext(), "Permission Granted!", Toast.LENGTH_SHORT).show();
+                Toast.makeText(context, "Permission Granted!", Toast.LENGTH_SHORT).show();
             } else {
-                Toast.makeText(getContext(), "Permission Denied!", Toast.LENGTH_SHORT).show();
+                Toast.makeText(context, "Permission Denied!", Toast.LENGTH_SHORT).show();
             }
         }
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+    }
+
+
+    @Override
+    public void onAttach(@NonNull Context context) {
+        super.onAttach(context);
+        this.context = context;
     }
 }

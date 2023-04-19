@@ -10,32 +10,49 @@ import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.CancellationSignal;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import com.airbnb.lottie.L;
+import com.example.remindmemaps.databinding.FragmentMapsBinding;
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.OnMapsSdkInitializedCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.libraries.places.api.Places;
+import com.google.android.libraries.places.api.net.PlacesClient;
 
 import java.security.Permission;
 import java.util.Objects;
+import java.util.function.Consumer;
 
 public class MapsFragment extends Fragment {
+    private FragmentMapsBinding binding;
+    private GoogleMap gMap;
+    private Places places;
+    private float distanceThreshold = 2000;
+    private Context context;
+    private String placeQuery;
     private static final int REQUEST_PERMISSION = 1;
     private LatLng latlng;
-    private GoogleMap gMap;
 
-    private OnMapReadyCallback callback = new OnMapReadyCallback() {
+    public OnMapReadyCallback callback = new OnMapReadyCallback() {
 
         /**
          * Manipulates the map once available.
@@ -49,33 +66,36 @@ public class MapsFragment extends Fragment {
         @RequiresApi(api = Build.VERSION_CODES.Q)
         @Override
         public void onMapReady(@NonNull GoogleMap googleMap) {
-            if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            gMap = googleMap;
+            if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED
+            && ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_BACKGROUND_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                 requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_BACKGROUND_LOCATION}, 1);
-                LocationManager locationManager = (LocationManager) getContext().getSystemService(Context.LOCATION_SERVICE);
-
-                locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, new LocationListener() {
-                    @Override
-                    public void onLocationChanged(@NonNull Location location) {
-                        latlng = new LatLng(location.getLatitude(),location.getLongitude());
-                        Toast.makeText(getContext(), "Latitude-> "+location.getLatitude()+" Longitude-> "+location.getLongitude(), Toast.LENGTH_SHORT).show();
-                    }
-                });
-                googleMap.addMarker(new MarkerOptions().position(latlng).title("Marker near home!"));
-                googleMap.moveCamera(CameraUpdateFactory.newLatLng(latlng));
             }
+            LocationManager locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
+            Location location1 = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+
+            CircleOptions circleoptions = new CircleOptions();
+
+            //Location location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, new LocationListener() {
+                @Override
+                public void onLocationChanged(@NonNull Location location) {
+                    float distance = location.distanceTo(location1);
+                    if(distance < distanceThreshold){
+                        Toast.makeText(context, "You are near the location..//", Toast.LENGTH_SHORT).show();
+                    }
+                }
+            });
         }
     };
-
-    private void setGoogleMaps(GoogleMap googleMap) {
-        this.gMap = googleMap;
-    }
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater,
                              @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_maps, container, false);
+        binding = FragmentMapsBinding.inflate(inflater);
+        return binding.getRoot();
     }
 
     @Override
@@ -85,7 +105,6 @@ public class MapsFragment extends Fragment {
                 (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map);
         if (mapFragment != null) {
             mapFragment.getMapAsync(callback);
-
         }
     }
 
@@ -96,5 +115,19 @@ public class MapsFragment extends Fragment {
                 Toast.makeText(getContext(), "Permissions are granted!!", Toast.LENGTH_SHORT).show();
             }
         }
+    }
+
+    @Override
+    public void onAttach(@NonNull Context context) {
+        super.onAttach(context);
+        this.context = context;
+    }
+    public void setQuery(String query){
+        this.placeQuery = query;
+    }
+    public void setLatlng(LatLng latlng){
+        this.latlng = latlng;
+        gMap.addMarker(new MarkerOptions().title(placeQuery+" marker").position(latlng));
+        gMap.moveCamera(CameraUpdateFactory.newLatLng(latlng));
     }
 }
