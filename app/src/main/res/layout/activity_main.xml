@@ -48,7 +48,7 @@
         app:layout_constraintHorizontal_bias="0.6"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/title_main"
-        app:srcCompat="@drawable/LogoRMM" />
+        app:srcCompat="@drawable/logo_rmm" />
 
     <Button
         android:id="@+id/get_started"
