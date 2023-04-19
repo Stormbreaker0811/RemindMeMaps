@@ -1,15 +1,22 @@
 package com.example.remindmemaps;
 
+import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 
+import androidx.appcompat.app.AppCompatDelegate;
+import androidx.appcompat.widget.SwitchCompat;
 import androidx.fragment.app.Fragment;
 
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.CompoundButton;
+import android.widget.Switch;
 
 import com.example.remindmemaps.databinding.FragmentSettingsBinding;
+import com.google.android.material.materialswitch.MaterialSwitch;
 
 import org.checkerframework.checker.nullness.qual.NonNull;
 
@@ -30,8 +37,10 @@ public class SettingsFragment extends Fragment {
     // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
-    private Button viewProfile,changePassword;
+    private Button viewProfile,changePassword,notificationSetting,aboutUs;
+    private SwitchCompat darkMode;
     private FragmentSettingsBinding binding;
+    private Context context;
 
     public SettingsFragment() {
         // Required empty public constructor
@@ -60,19 +69,48 @@ public class SettingsFragment extends Fragment {
                              Bundle savedInstanceState) {
         binding = FragmentSettingsBinding.inflate(inflater);
         View root = binding.getRoot();
+        View view = inflater.inflate(R.layout.activity_landing,null);
         viewProfile = binding.MyProfile;
         changePassword = binding.ChangePassword;
-        viewProfile.setOnClickListener(view->{
-            getChildFragmentManager().beginTransaction().
-                    replace(R.id.settingsFragment,new fragment_myprofile()).
-                    commit();
+        notificationSetting = binding.NotificationSetting;
+        aboutUs = binding.AboutUs;
+        darkMode = binding.DarkModeSwitch;
+        viewProfile.setOnClickListener(view1->{
+            Intent profileIntent = new Intent(this.context,myprofile.class);
+            startActivity(profileIntent);
         });
-        changePassword.setOnClickListener(view -> {
-            getChildFragmentManager().beginTransaction().
-                    replace(R.id.settingsFragment,new Fragment_ChangePassword()).
-                    commit();
+        changePassword.setOnClickListener(view1->{
+           Intent changePasswordIntent = new Intent(this.context,changepassword.class);
+           startActivity(changePasswordIntent);
         });
+        notificationSetting.setOnClickListener(view1->{
+            Intent notificationSettingIntent = new Intent(this.context,notificationsetting.class);
+            startActivity(notificationSettingIntent);
+        });
+        aboutUs.setOnClickListener(view1->{
+            Intent aboutUsIntent = new Intent(this.context,aboutus.class);
+            startActivity(aboutUsIntent);
+        });
+        darkMode.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                if(darkMode.isChecked()){
+                    AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
+                }
+                else{
+                    AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
+                }
+            }
+        });
+
+        boolean isNightModeOn = AppCompatDelegate.getDefaultNightMode() == AppCompatDelegate.MODE_NIGHT_YES;
         // Inflate the layout for this fragment
         return root;
+    }
+
+    @Override
+    public void onAttach(@androidx.annotation.NonNull Context context) {
+        super.onAttach(context);
+        this.context = context;
     }
 }
