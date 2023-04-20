@@ -8,6 +8,8 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.location.Location;
+import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.view.View;
@@ -86,22 +88,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     add(reminders).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
                         @Override
                         public void onSuccess(DocumentReference documentReference) {
+                            Location targetlocation = new Location(LocationManager.GPS_PROVIDER);
+                            targetlocation.setLongitude(73.81498449181112);
+                            targetlocation.setLatitude(18.518810002052458);
                             Toast.makeText(MapsActivity.this, "Location added Successfully..//", Toast.LENGTH_SHORT).show();
-                            tracker = new LocationTracker(MapsActivity.this,reminderName);
-                            Intent intent1 = new Intent(MapsActivity.this,LocationTracker.class);
-                            bindService(intent1, new ServiceConnection() {
-                                @Override
-                                public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
-                                    LocationTracker.LocalBinder binder = (LocationTracker.LocalBinder) iBinder;
-                                    tracker = binder.getService();
-                                    bound = true;
-                                }
-                                @Override
-                                public void onServiceDisconnected(ComponentName componentName) {
-                                    tracker = null;
-                                    bound = false;
-                                }
-                            }, Context.BIND_AUTO_CREATE);
+                            tracker = new LocationTracker(getApplicationContext(),reminderName);
+                            Intent intent1 = new Intent(getApplicationContext(),tracker.getClass());
+                            startService(intent1);
                         }
                     }).addOnFailureListener(new OnFailureListener() {
                         @Override

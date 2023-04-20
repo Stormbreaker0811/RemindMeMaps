@@ -1,9 +1,12 @@
 package com.example.remindmemaps;
 
+import android.app.AlertDialog;
+import android.app.DatePickerDialog;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
@@ -53,6 +56,10 @@ public class LocationTracker extends Service {
     private Location location1;
     private String place;
 
+    public LocationTracker(){
+
+    }
+
     public LocationTracker(Context context, String name) {
         this.context = context;
         this.reminderName = name;
@@ -65,27 +72,19 @@ public class LocationTracker extends Service {
     }
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        Toast.makeText(context, "Location Tracker has started..//", Toast.LENGTH_SHORT).show();
+        //Toast.makeText(context, "Location Tracker has started..//", Toast.LENGTH_SHORT).show();
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             return START_NOT_STICKY;
         }
-        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, new LocationListener() {
-            @Override
-            public void onLocationChanged(@NonNull Location location) {
-                location1 = location;
-            }
-        });
-        FirebaseFirestore.getInstance().collection("reminders_collection").whereEqualTo("Reminder Name", reminderName).get()
+        /*FirebaseFirestore.getInstance().collection("reminders_collection").whereEqualTo("Reminder Name", reminderName).get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
                         if (task.isSuccessful()) {
                             for (QueryDocumentSnapshot doc : task.getResult()) {
-                                targetLocation = new Location(LocationManager.GPS_PROVIDER);
                                 targetLocation.setLatitude(Double.parseDouble(Objects.requireNonNull(doc.getString("Latitude"))));
                                 targetLocation.setLongitude(Double.parseDouble(Objects.requireNonNull(doc.getString("Longitude"))));
-                                Toast.makeText(context, "Target location set", Toast.LENGTH_SHORT).show();
                             }
                         }
                     }
@@ -94,7 +93,9 @@ public class LocationTracker extends Service {
                     public void onFailure(@NonNull Exception e) {
                         e.printStackTrace();
                     }
-                });
+                });*/
+        location1 = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+        targetLocation = new Location(location1);
         if (location1.distanceTo(targetLocation) <= 2000) {
             // remind the user
             /*NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
@@ -107,7 +108,7 @@ public class LocationTracker extends Service {
             PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, intent1, PendingIntent.FLAG_UPDATE_CURRENT);
             builder.setContentIntent(pendingIntent);
             notificationManager.notify(1, builder.build());*/
-            Toast.makeText(context, "You are near the location..//", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getApplicationContext(),"You are near",Toast.LENGTH_SHORT).show();
         }
         return START_STICKY;
     }
