@@ -1,51 +1,66 @@
-public class LocationTracker extends Service implements LocationListener {
+public class MainActivity extends AppCompatActivity implements LocationListener {
 
     private LocationManager locationManager;
-    private Location targetLocation; // the geolocation to be reminded
-    private static final int DISTANCE_THRESHOLD = 100; // the distance within which to remind the user
+    private double setLat = 37.7749; //Set Latitude
+    private double setLng = -122.4194; //Set Longitude
 
     @Override
-    public int onStartCommand(Intent intent, int flags, int startId) {
-        // get the target location from database or shared preferences
-        double latitude = ...;
-        double longitude = ...;
-        targetLocation = new Location("");
-        targetLocation.setLatitude(latitude);
-        targetLocation.setLongitude(longitude);
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
 
-        // set up location manager to track the user's location
+        // Get the location manager
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            return START_NOT_STICKY;
-        }
-        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, this);
 
-        return START_STICKY;
+        // Check if location services are enabled
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) {
+            // Request permission to access location services
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 1);
+        } else {
+            // Start location updates
+            startLocationUpdates();
+        }
     }
 
+    // Start location updates
+    private void startLocationUpdates() {
+        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5000, 10, this);
+    }
+
+    // Stop location updates
+    private void stopLocationUpdates() {
+        locationManager.removeUpdates(this);
+    }
+
+    // LocationListener methods
     @Override
     public void onLocationChanged(Location location) {
-        // check if the user is near the target location
-        float distance = location.distanceTo(targetLocation);
-        if (distance <= DISTANCE_THRESHOLD) {
-            // remind the user
-            NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-            NotificationCompat.Builder builder = new NotificationCompat.Builder(this, "reminder_channel")
-                    .setSmallIcon(R.drawable.ic_notification)
-                    .setContentTitle("You're near the reminder location!")
-                    .setContentText("Tap to view details")
-                    .setPriority(NotificationCompat.PRIORITY_HIGH)
-                    .setAutoCancel(true);
-            Intent intent = new Intent(this, ReminderDetailsActivity.class);
-            PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-            builder.setContentIntent(pendingIntent);
-            notificationManager.notify(1, builder.build());
+        double currentLat = location.getLatitude();
+        double currentLng = location.getLongitude();
+
+        // Calculate distance between current location and set location
+        float[] results = new float[1];
+        Location.distanceBetween(currentLat, currentLng, setLat, setLng, results);
+        float distance = results[0];
+
+        // Check if within 2000 meter radius
+        if (distance <= 2000) {
+            Toast.makeText(this, "You have reached the set location!", Toast.LENGTH_LONG).show();
+            stopLocationUpdates();
         }
     }
 
     @Override
-    public void onDestroy() {
-        super.onDestroy();
-        locationManager.removeUpdates(this);
+    public void onStatusChanged(String provider, int status, Bundle extras) {
+    }
+
+    @Override
+    public void onProviderEnabled(String provider) {
+    }
+
+    @Override
+    public void onProviderDisabled(String provider) {
     }
 }
