@@ -1,4 +1,6 @@
 package com.example.remindmemaps;
 
-public class AutoCompletePlaces {
+import io.radar.sdk.Radar;
+
+public class AutoCompletePlaces{
 }

@@ -21,14 +21,6 @@
                 android:drawableLeft="@drawable/baseline_add_location_24" />
         </com.google.android.material.textfield.TextInputLayout>
 
-        <androidx.fragment.app.FragmentContainerView
-            android:id="@+id/mapsContainer"
-            android:name="com.example.remindmemaps.MapsFragment"
-            android:layout_width="match_parent"
-            android:layout_height="200dp"
-            android:layout_gravity="center"
-            android:foregroundGravity="center"/>
-
         <Button
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

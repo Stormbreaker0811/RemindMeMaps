@@ -50,8 +50,6 @@ public class LoginActivity extends AppCompatActivity {
                     }
                     Intent intent = new Intent(LoginActivity.this,LandingActivity.class);
                     intent.putExtra("Name",name);
-                    intent.putExtra("Email",email);
-                    intent.putExtra("Password",password);
                     startActivity(intent);
                 }).addOnFailureListener(e -> Toast.makeText(LoginActivity.this, "Password Incorrect. No user found", Toast.LENGTH_SHORT).show());
     }

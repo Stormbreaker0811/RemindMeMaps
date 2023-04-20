@@ -27,6 +27,7 @@ public class LandingActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_landing);
         Intent intent = getIntent();
+        user = intent.getStringExtra("Name");
         initialiseUI();
 //        ReminderFragment fragment = (ReminderFragment) getSupportFragmentManager().findFragmentById(R.id.reminderFragment);
 //        assert fragment != null;
@@ -44,6 +45,10 @@ public class LandingActivity extends AppCompatActivity {
                                 commit();
                         break;
                     case R.id.reminder_menu_item:
+                        Bundle bundle = new Bundle();
+                        bundle.putString("Name",user);
+                        ReminderFragment fragment = new ReminderFragment();
+                        fragment.setArguments(bundle);
                         bottomNav.getMenu().findItem(R.id.reminder_menu_item).setChecked(true);
                         getSupportFragmentManager().
                                 beginTransaction().

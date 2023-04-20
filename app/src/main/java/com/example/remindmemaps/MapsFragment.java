@@ -66,7 +66,6 @@ public class MapsFragment extends Fragment {
         @RequiresApi(api = Build.VERSION_CODES.Q)
         @Override
         public void onMapReady(@NonNull GoogleMap googleMap) {
-            gMap = googleMap;
             if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED
             && ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_BACKGROUND_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                 requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_BACKGROUND_LOCATION}, 1);
@@ -86,6 +85,9 @@ public class MapsFragment extends Fragment {
                     }
                 }
             });
+            //latlng = new LATLNG_GETSET().getLatLng();
+//            googleMap.addMarker(new MarkerOptions().title(placeQuery+" marker").position(latlng));
+//            googleMap.moveCamera(CameraUpdateFactory.newLatLng(latlng));
         }
     };
 
@@ -95,7 +97,8 @@ public class MapsFragment extends Fragment {
                              @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
         binding = FragmentMapsBinding.inflate(inflater);
-        return binding.getRoot();
+        View root = binding.getRoot();
+        return root;
     }
 
     @Override
@@ -127,7 +130,5 @@ public class MapsFragment extends Fragment {
     }
     public void setLatlng(LatLng latlng){
         this.latlng = latlng;
-        gMap.addMarker(new MarkerOptions().title(placeQuery+" marker").position(latlng));
-        gMap.moveCamera(CameraUpdateFactory.newLatLng(latlng));
     }
 }

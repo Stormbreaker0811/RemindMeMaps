@@ -3,6 +3,7 @@ package com.example.remindmemaps;
 
 import android.app.AlertDialog;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Bundle;
@@ -21,7 +22,13 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import com.example.remindmemaps.databinding.FragmentReminderBinding;
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.libraries.places.api.Places;
 import com.google.android.libraries.places.api.model.Place;
@@ -39,6 +46,7 @@ import org.json.JSONObject;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 import io.radar.sdk.Radar;
 
@@ -103,7 +111,11 @@ public class ReminderFragment extends Fragment {
                              Bundle savedInstanceState) {
         binding = FragmentReminderBinding.inflate(inflater);
         root = binding.getRoot();
-        mapsFragment = (MapsFragment) getChildFragmentManager().findFragmentById(R.id.map);
+//        Bundle extras = getArguments();
+//
+//        String username = extras.getString("Name");
+
+        /*mapsFragment = (MapsFragment) getChildFragmentManager().findFragmentById(R.id.map);*/
         reminderName = binding.enterReminderName;
         reminderDescription = binding.enterReminderDescription;
         addItems = binding.listAllItems;
@@ -121,26 +133,14 @@ public class ReminderFragment extends Fragment {
                 maps_alert.setView(view);
                 TextInputLayout placeName = view.findViewById(R.id.place_name);
                 placeName.addOnEditTextAttachedListener(textInputLayout -> place_name = textInputLayout.getEditText());
-                Map<String, Object> reminder = new HashMap<>();
-                Button addPlace = view.findViewById(R.id.add_place);
                 maps_alert.setPositiveButton("Add Place", (dialogInterface, i) -> {
-//                    reminder.put("Username", user);
-//                    reminder.put("Reminder Name", name.getText().toString());
-//                    reminder.put("Reminder Description", description.getText().toString());
-//                    reminder.put("Place Name", place_name.getText().toString());
-//                    reminder.put("Place Longitude", "");
-//                    reminder.put("Place Latitude", "");
-//                    FirebaseFirestore.getInstance().collection("reminders").
-//                            document("Reminders of " + user).set(reminder).
-//                            addOnCompleteListener(task -> {
-//                                if (task.isSuccessful()) {
-//                                    Toast.makeText(getContext(), "Reminder added successfully..", Toast.LENGTH_SHORT).show();
-//                                }
-//                            }).addOnFailureListener(e -> {
-//                                Toast.makeText(context, e.getMessage(), Toast.LENGTH_SHORT).show();
-//                            });
+                    Intent intent = new Intent(this.context, MapsActivity.class);
+                    intent.putExtra("Place",place_name.getText().toString());
+                    intent.putExtra("ReminderName",name.getText().toString());
+                    intent.putExtra("ReminderDescription",description.getText().toString());
+                    intent.putExtra("Items",addItemsEditText.getText().toString());
+                    startActivity(intent);
                 });
-
                 AlertDialog maps_dialog = maps_alert.create();
                 maps_dialog.show();
 

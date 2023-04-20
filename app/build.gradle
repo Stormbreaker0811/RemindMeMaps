@@ -46,7 +46,7 @@ dependencies {
     implementation 'com.google.android.libraries.places:places:3.0.0'
     def lottieVersion = "3.4.0"
     implementation "com.airbnb.android:lottie:$lottieVersion"
-    implementation 'io.radar:sdk:3.5.15'
+    implementation 'io.radar:sdk:3.8.+'
     implementation 'androidx.navigation:navigation-ui:2.5.3'
     implementation 'com.google.android.gms:play-services-maps:18.1.0'
     testImplementation 'junit:junit:4.13.2'
